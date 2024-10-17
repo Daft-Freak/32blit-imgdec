@@ -64,14 +64,14 @@ jobs:
     steps:
     # Check out the main repo
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         path: main
         submodules: true
 
     # Check out the 32Blit API we build against
     - name: Checkout 32Blit API
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: 32blit/32blit-sdk
         path: 32blit-sdk
@@ -101,14 +101,14 @@ jobs:
     - name: Setup Emscripten cache
       if: matrix.name == 'Emscripten'
       id: cache-system-libraries
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ${{env.EM_CACHE_FOLDER}}
         key: ${{env.EM_VERSION}}-${{runner.os}}
 
     - name: Setup Emscripten
       if: matrix.name == 'Emscripten'
-      uses: mymindstorm/setup-emsdk@v12
+      uses: mymindstorm/setup-emsdk@v14
       with:
         version: ${{env.EM_VERSION}}
         actions-cache-folder: ${{env.EM_CACHE_FOLDER}}
