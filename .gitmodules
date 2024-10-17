@@ -1,0 +1,3 @@
+[submodule "JPEGDEC"]
+	path = JPEGDEC
+	url = https://github.com/bitbank2/JPEGDEC
