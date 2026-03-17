@@ -10,6 +10,7 @@ endif()
 add_library(32blit-imgdec STATIC
     JPEGDEC/src/JPEGDEC.cpp
 
+    imgdec.cpp
     jpeg.cpp
 )
 
