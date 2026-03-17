@@ -10,11 +10,23 @@ endif()
 add_library(32blit-imgdec STATIC
     JPEGDEC/src/JPEGDEC.cpp
 
+    PNGdec/src/adler32.c
+    PNGdec/src/crc32.c
+    PNGdec/src/inffast.c
+    PNGdec/src/inflate.c
+    PNGdec/src/inftrees.c
+    PNGdec/src/PNGdec.cpp
+    PNGdec/src/zutil.c
+
     imgdec.cpp
     jpeg.cpp
 )
 
-target_include_directories(32blit-imgdec PRIVATE ${CMAKE_CURRENT_LIST_DIR}/not-duino ${CMAKE_CURRENT_LIST_DIR}/JPEGDEC/src)
+target_include_directories(32blit-imgdec PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/not-duino
+    ${CMAKE_CURRENT_LIST_DIR}/JPEGDEC/src
+    ${CMAKE_CURRENT_LIST_DIR}/PNGdec/src
+)
 target_include_directories(32blit-imgdec PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 target_link_libraries(32blit-imgdec PRIVATE BlitEngine)
 
