@@ -16,3 +16,9 @@ add_library(32blit-imgdec STATIC
 target_include_directories(32blit-imgdec PRIVATE ${CMAKE_CURRENT_LIST_DIR}/not-duino ${CMAKE_CURRENT_LIST_DIR}/JPEGDEC/src)
 target_include_directories(32blit-imgdec PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 target_link_libraries(32blit-imgdec PRIVATE BlitEngine)
+
+# add example if top-level (not included as a library)
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    message("Top-level build, adding example")
+    add_subdirectory(example)
+endif()
