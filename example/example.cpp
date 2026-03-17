@@ -9,7 +9,7 @@ using namespace blit;
 
 static Surface *image_surface;
 
-// blit only works from RGBA or palette surfaces...
+// blit doesn't support 565 src
 // this does a raw copy from a surface of a matching format
 static void raw_copy(Surface *dest, Surface *src, Point pos) {
     // assuming pos is inside clip rect...
@@ -45,7 +45,7 @@ void render(uint32_t time) {
     screen.clear();
 
     if(image_surface) {
-        if(image_surface->format == PixelFormat::P)
+        if(image_surface->format != PixelFormat::RGB565)
             screen.blit(image_surface, {{0, 0}, image_surface->bounds}, {0, 0});
         else
             raw_copy(&screen, image_surface, {0, 0});
