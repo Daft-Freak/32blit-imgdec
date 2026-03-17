@@ -69,48 +69,52 @@ static int jpeg_draw_rgba565(JPEGDRAW *pDraw) {
   return 1;
 }
 
+static JPEG_DRAW_CALLBACK *format_to_draw_cb(PixelFormat format) {
+  switch(format) {
+    case PixelFormat::RGB:
+      return jpeg_draw_rgb888;
+    case PixelFormat::RGBA:
+      return jpeg_draw_rgba8888;
+    case PixelFormat::RGB565:
+      return jpeg_draw_rgba565;
+    default:
+      return nullptr;
+  }
+}
+
+static Surface *decode_to_surface(JPEGDEC &dec, PixelFormat format) {
+  Size bounds(dec.getWidth(), dec.getHeight());
+
+  dec.setPixelType(format == PixelFormat::RGB565 ? RGB565_LITTLE_ENDIAN : RGB8888);
+
+  int bytes_per_pixel = pixel_format_stride[static_cast<int>(format)];
+  auto data = new uint8_t[bounds.area() * bytes_per_pixel];
+  DecodeData ret{bounds, data};
+
+  dec.setUserPointer(&ret);
+
+  if(!dec.decode(0, 0, 0)) {
+    delete[] data;
+    dec.close();
+    return nullptr;
+  }
+
+  dec.close();
+  return new Surface(data, format, bounds);
+}
+
 namespace imgdec {
   Surface *decode_jpeg_buffer(const uint8_t *ptr, uint32_t len, PixelFormat format) {
     JPEGDEC dec;
 
-    JPEG_DRAW_CALLBACK *cb;
-
-    switch(format) {
-      case PixelFormat::RGB:
-        cb = jpeg_draw_rgb888;
-        break;
-      case PixelFormat::RGBA:
-        cb = jpeg_draw_rgba8888;
-        break;
-      case PixelFormat::RGB565:
-        cb = jpeg_draw_rgba565;
-        break;
-      default:
-        // unhandled format
-        return nullptr;
-    }
+    auto cb = format_to_draw_cb(format);
+    if(!cb) // unhandled format
+      return nullptr;
 
     if(!dec.openFLASH(const_cast<uint8_t *>(ptr), len, cb))
       return nullptr;
 
-    Size bounds(dec.getWidth(), dec.getHeight());
-
-    dec.setPixelType(format == PixelFormat::RGB565 ? RGB565_LITTLE_ENDIAN : RGB8888);
-
-    int bytes_per_pixel = pixel_format_stride[static_cast<int>(format)];
-    auto data = new uint8_t[bounds.area() * bytes_per_pixel];
-    DecodeData ret{bounds, data};
-
-    dec.setUserPointer(&ret);
-
-    if(!dec.decode(0, 0, 0)) {
-      delete[] data;
-      dec.close();
-      return nullptr;
-    }
-
-    dec.close();
-    return new Surface(data, format, bounds);
+    return decode_to_surface(dec, format);
   }
 }
 
