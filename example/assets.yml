@@ -3,5 +3,7 @@
 # References can be picked up by including assets.hpp
 
 assets.cpp:
+  assets/image.bmp:
+    name: asset_image_bmp
   assets/image.jpeg:
     name: asset_image_jpeg
