@@ -24,7 +24,7 @@ add_library(32blit-imgdec STATIC
 )
 
 # workaround
-set_source_files_properties(PNGdec/src/inflate.c PROPERTIES COMPILE_DEFINITIONS -Duint=uInt)
+set_source_files_properties(PNGdec/src/inflate.c PROPERTIES COMPILE_DEFINITIONS uint=uInt)
 
 target_include_directories(32blit-imgdec PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/not-duino
