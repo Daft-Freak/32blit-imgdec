@@ -16,6 +16,9 @@ namespace imgdec {
     if(ext == "jpeg")
       return decode_jpeg_file(filename, format);
 
+    if(ext == "png")
+      return decode_png_file(filename, format);
+
     // built-in SDK functions (no format conversion)
     if(ext == "bmp" || ext == "blim")
       return Surface::load(filename);

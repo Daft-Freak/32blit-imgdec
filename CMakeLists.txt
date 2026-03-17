@@ -20,6 +20,7 @@ add_library(32blit-imgdec STATIC
 
     imgdec.cpp
     jpeg.cpp
+    png.cpp
 )
 
 target_include_directories(32blit-imgdec PRIVATE
