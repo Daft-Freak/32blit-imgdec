@@ -23,6 +23,9 @@ add_library(32blit-imgdec STATIC
     png.cpp
 )
 
+# workaround
+set_source_files_properties(PNGdec/src/inflate.c PROPERTIES COMPILE_DEFINITIONS -Duint=uInt)
+
 target_include_directories(32blit-imgdec PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/not-duino
     ${CMAKE_CURRENT_LIST_DIR}/JPEGDEC/src
