@@ -9,6 +9,8 @@ struct DecodeData {
   uint8_t *data;
 };
 
+// format conversion
+
 static int jpeg_draw_rgb888(JPEGDRAW *pDraw) {
   auto img = reinterpret_cast<DecodeData *>(pDraw->pUser);
 
@@ -69,6 +71,47 @@ static int jpeg_draw_rgba565(JPEGDRAW *pDraw) {
   return 1;
 }
 
+// file IO
+static void *jpeg_file_open(const char *filename, int32_t *file_size) {
+  auto fh = new File{filename};
+
+  // check for success
+  if(!fh->is_open()) {
+    delete fh;
+    return nullptr;
+  }
+
+  *file_size = fh->get_length();
+  return fh;
+}
+
+static void jpeg_file_close(void *handle) {
+  auto fh = reinterpret_cast<File *>(handle);
+  delete fh;
+}
+
+static int32_t jpeg_file_read(JPEGFILE *file, uint8_t *buf, int32_t len) {
+  auto fh = reinterpret_cast<File *>(file->fHandle);
+
+  auto ret = fh->read(file->iPos, len, reinterpret_cast<char *>(buf));
+
+  file->iPos += ret;
+
+  return ret;
+}
+
+// the same as seekMem (32blit file api doesn't have seek)
+static int32_t jpeg_file_seek(JPEGFILE *file, int32_t position) {
+  if(position < 0)
+    position = 0;
+  else if(position >= file->iSize)
+    position = file->iSize - 1;
+
+  file->iPos = position;
+  return position;
+}
+
+// helpers
 static JPEG_DRAW_CALLBACK *format_to_draw_cb(PixelFormat format) {
   switch(format) {
     case PixelFormat::RGB:
@@ -103,6 +146,7 @@ static Surface *decode_to_surface(JPEGDEC &dec, PixelFormat format) {
   return new Surface(data, format, bounds);
 }
 
+// main API
 namespace imgdec {
   Surface *decode_jpeg_buffer(const uint8_t *ptr, uint32_t len, PixelFormat format) {
     JPEGDEC dec;
@@ -112,6 +156,19 @@ namespace imgdec {
       return nullptr;
 
     if(!dec.openFLASH(const_cast<uint8_t *>(ptr), len, cb))
+      return nullptr;
+
+    return decode_to_surface(dec, format);
+  }
+
+  Surface *decode_jpeg_file(const char *filename, PixelFormat format) {
+    JPEGDEC dec;
+
+    auto cb = format_to_draw_cb(format);
+    if(!cb) // unhandled format
+      return nullptr;
+
+    if(!dec.open(filename, jpeg_file_open, jpeg_file_close, jpeg_file_read, jpeg_file_seek, cb))
       return nullptr;
 
     return decode_to_surface(dec, format);
