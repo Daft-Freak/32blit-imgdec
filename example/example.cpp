@@ -7,7 +7,7 @@
 
 using namespace blit;
 
-static Surface *jpeg_surface;
+static Surface *image_surface;
 
 // blit only works from RGBA or palette surfaces...
 // this does a raw copy from a surface of a matching format
@@ -27,15 +27,20 @@ static void raw_copy(Surface *dest, Surface *src, Point pos) {
 void init() {
     set_screen_mode(ScreenMode::hires, PixelFormat::RGB565);
 
-    jpeg_surface = imgdec::decode_jpeg_buffer(asset_image_jpeg, asset_image_jpeg_length, PixelFormat::RGB565);
+    File::add_buffer_file("image.jpeg", asset_image_jpeg, asset_image_jpeg_length);
+
+    image_surface = imgdec::decode_file("image.jpeg", PixelFormat::RGB565);
+
+    // could also use for a specific format
+    // image_surface = imgdec::decode_jpeg_buffer(asset_image_jpeg, asset_image_jpeg_length, PixelFormat::RGB565);
 }
 
 void render(uint32_t time) {
     screen.pen = {0, 0, 0};
     screen.clear();
 
-    if(jpeg_surface)
-        raw_copy(&screen, jpeg_surface, {0, 0});
+    if(image_surface)
+        raw_copy(&screen, image_surface, {0, 0});
 }
 
 void update(uint32_t time) {
